@@ -1,0 +1,39 @@
+pipeline{
+    agent any
+    stages{
+        stage("Checkout SCM"){
+            steps{
+                git branch: "main", url: ""           
+            }
+        }
+
+        stage("Build"){
+            steps{
+                sh 'mvn clean compile'
+            }
+        }
+
+        stage("Test"){
+            steps{
+                sh 'mvn test'
+            }
+        }
+
+        stage("Run"){
+            steps{
+                sh 'mvn exec:java -Dexec.mainClass="main.java.HelloWorld"'
+            }
+        }
+    }
+    post{
+        always{
+            echo "========always========"
+        }
+        success{
+            echo "========pipeline executed successfully ========"
+        }
+        failure{
+            echo "========pipeline execution failed========"
+        }
+    }
+}
