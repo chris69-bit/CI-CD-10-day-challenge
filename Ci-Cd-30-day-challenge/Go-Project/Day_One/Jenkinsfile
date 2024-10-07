@@ -1,0 +1,40 @@
+pipeline{
+    agent any
+    stages{
+        stage("Checkout SCM"){
+            steps{
+                git branch: "main", url: ""
+            }
+            
+        }
+
+        stage("Build"){
+            steps{
+                sh 'go build main.go'
+            }
+        }
+
+        stage("Test"){
+            steps{
+                sh 'go test'
+            }
+        }
+
+        stage("Run"){
+            steps{
+                sh './main'
+            }
+        }
+    }
+    post{
+        always{
+            echo "========always========"
+        }
+        success{
+            echo "========pipeline executed successfully ========"
+        }
+        failure{
+            echo "========pipeline execution failed========"
+        }
+    }
+}
