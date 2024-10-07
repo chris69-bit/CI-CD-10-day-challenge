@@ -1,0 +1,39 @@
+pipeline{
+    agent any
+    stages{
+        stage("Checkout SCM"){
+            steps{
+              git branch: "main", url: ""  
+            }
+        }
+
+        stage("Install dependencies"){
+            steps{
+                sh 'npm install'
+            }
+        }
+
+        stage("Unit test"){
+            steps{
+                sh 'npm test'
+            }
+        }
+
+        stage("Run"){
+            steps{
+                sh 'npm start'
+            }
+        }
+    }
+    post{
+        always{
+            echo "========always========"
+        }
+        success{
+            echo "========pipeline executed successfully ========"
+        }
+        failure{
+            echo "========pipeline execution failed========"
+        }
+    }
+}
