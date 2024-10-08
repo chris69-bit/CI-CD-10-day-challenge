@@ -1,0 +1,41 @@
+pipeline{
+    agent any
+    stages{
+        stage("Checkout SCM"){
+            steps{
+                git branch: "main", url: ""
+                
+            }
+        }
+
+        stage("Build"){
+            steps{
+                sh 'go build -o mygoapp main.go'
+
+            }
+        }
+
+        stage("Run"){
+            steps{
+                sh './main Jenkins'
+            }
+        }
+
+        stage("Archive Artifact"){
+            steps{
+                archiveArtifacts artifacts: 'mygoapp', fingerprint: 'true'
+            }
+        }
+    }
+    post{
+        always{
+            echo "========always========"
+        }
+        success{
+            echo "========pipeline executed successfully ========"
+        }
+        failure{
+            echo "========pipeline execution failed========"
+        }
+    }
+}
