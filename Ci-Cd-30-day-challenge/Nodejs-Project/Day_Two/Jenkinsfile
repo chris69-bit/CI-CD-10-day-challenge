@@ -1,0 +1,52 @@
+pipeline{
+    agent any
+    stages{
+        stage("Checkout SCM"){
+            steps{
+                git branch: "main", url: ""
+            }
+            
+        }
+
+        stage("Install dependencies"){
+            steps{
+                sh 'npm install'
+            }
+        }
+
+        stage("Testing"){
+            steps{
+                sh 'npm test'
+            }
+        }
+
+        stage("Run the application"){
+            steps{
+                sh 'npm start'
+            }
+        }
+
+        stage("Packaging"){
+            steps{
+                sh 'zip -r nodejs_app.zip *'
+            }
+        }
+
+        stage("Archive the artifact"){
+            steps{
+                archiveArtifacts artifacts: 'nodejs_app.zip', fingerprint: true
+            }
+        }
+    }
+    post{
+        always{
+            echo "========always========"
+        }
+        success{
+            echo "========pipeline executed successfully ========"
+        }
+        failure{
+            echo "========pipeline execution failed========"
+        }
+    }
+}
