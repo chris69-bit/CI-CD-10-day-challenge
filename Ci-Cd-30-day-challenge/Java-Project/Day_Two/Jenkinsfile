@@ -1,0 +1,45 @@
+pipeline{
+    agent any
+    stages{
+        stage("Checkout SCM"){
+            steps{
+                git branch: "main", url: ""
+            }
+        }
+
+        stage("Build"){
+            steps{
+                sh 'mvn clean compile'
+            }
+        }
+
+        stage("Unit testing"){
+            steps{
+                sh 'mvn test'
+            }
+        }
+
+        stage("Building a Jar file"){
+            steps{
+                sh 'mvn clean package'
+            }
+        }
+
+        stage("Archive artifacts"){
+            steps{
+                archiveArtifacts artifacts: 'target/*.jar' , fingerprint: true
+            }
+        }
+    }
+    post{
+        always{
+            echo "========always========"
+        }
+        success{
+            echo "========pipeline executed successfully ========"
+        }
+        failure{
+            echo "========pipeline execution failed========"
+        }
+    }
+}
