@@ -1,0 +1,46 @@
+pipeline{
+    agent any
+    stages{
+        stage("Checkout SCM"){
+            steps{
+                git branch: "main", url: ""
+            }
+        }
+
+        stage("Compiling"){
+            steps{
+                sh 'mvn clean compile'
+            }
+        }
+
+        stage("Unit test"){
+            steps{
+                sh 'mvn test'
+            }
+        }
+
+        stage("build an image"){
+            steps{
+                sh 'docker build -t myjava_app .'
+            }
+        }
+
+        stage("push image to docker hub"){
+            steps{
+                sh 'docker tag myjava_app chrispined/java-stuff:myjava_app-1.0'
+                sh 'docker push chrispined/java-stuff:myjava_app-1.0'
+            }
+        }
+    }
+    post{
+        always{
+            echo "========always========"
+        }
+        success{
+            echo "========pipeline executed successfully ========"
+        }
+        failure{
+            echo "========pipeline execution failed========"
+        }
+    }
+}
