@@ -1,0 +1,53 @@
+pipeline{
+    agent any
+    stages{
+        stage("Checkout SCM"){
+            steps{
+                git branch: "main", url: ""
+            }
+        }
+
+        stage("Install dependencies"){
+            steps{
+                sh 'pip install -r requirements.txt'
+            }
+        }
+
+        stage("Run tests"){
+            steps{
+                //Creating a user
+                sh 'curl -X POST http://localhost:8080/users -d "name=John Doe&email=john@example.com"'
+                  //Reading the user
+                sh 'curl http://localhost:8080/users'
+                  //Updating user details
+                sh 'curl -X PUT http://localhost:8080/users/1 -d "name=Jane Doe&email=jane@example.com"'
+                  // Deleting user details
+                sh 'curl -X DELETE http://localhost:8080/users/1'
+            }
+        }
+
+        stage("Build images"){
+            steps{
+                sh 'docker build -t pythonApp .'
+            }
+        }
+
+        stage("Push image to Dockerhub"){
+            steps{
+                sh 'docker tag pythonApp chrispined/python-staff:pythonApp-1.0'
+                sh 'docker push chrispined/python-staff:pythonApp-1.0'
+            }
+        }
+    }
+    post{
+        always{
+            echo "========always========"
+        }
+        success{
+            echo "========pipeline executed successfully ========"
+        }
+        failure{
+            echo "========pipeline execution failed========"
+        }
+    }
+}

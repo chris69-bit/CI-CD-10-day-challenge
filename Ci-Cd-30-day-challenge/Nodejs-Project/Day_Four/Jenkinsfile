@@ -1,0 +1,52 @@
+pipeline{
+    agent any
+    stages{
+        stage("Checkout SCM"){
+            steps{
+                git branch: "main", url: ""
+            }
+        }
+
+        stage("Install dependencies"){
+            steps{
+                sh 'npm install'
+            }
+        }
+
+        stage("testing"){
+            steps{ //Creating a user
+                sh 'curl -X POST http://localhost:3000/users -d "name=John Doe&email=john@example.com"'
+                  //Reading the user
+                sh 'curl http://localhost:3000/users'
+                  //Updating user details
+                sh 'curl -X PUT http://localhost:3000/users/1 -d "name=Jane Doe&email=jane@example.com"'
+                  // Deleting user details
+                sh 'curl -X DELETE http://localhost:3000/users/1'
+            }
+        }
+
+        stage("Build docker image"){
+            steps{
+                sh 'docker build -t nodeApp .'
+            }
+        }
+
+        stage("Push image to dockerhub"){
+            steps{
+                sh 'docker tag nodeApp chrispined/node-staff:nodeApp-1.0'
+                sh 'docker push chrispined/node-staff:nodeApp-1.0'
+            }
+        }
+    }
+    post{
+        always{
+            echo "========always========"
+        }
+        success{
+            echo "========pipeline executed successfully ========"
+        }
+        failure{
+            echo "========pipeline execution failed========"
+        }
+    }
+}
