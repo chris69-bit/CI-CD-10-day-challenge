@@ -1,0 +1,40 @@
+pipeline{
+    agent any
+    stages{
+        stage("Checkout SCM"){
+            steps{
+                git branch: "main", url: ""
+            }
+        }
+
+        stage("Build image"){
+            steps{
+                sh 'docker build -t py-crud-test .'
+            }
+        }
+
+        stage("push Image"){
+            steps{
+                sh 'docker tag py-crud-test chrsipined/pythonstuff:py-crud-test-1.0'
+                sh 'docker push chrispined/pythonstuff:py-crud-test-1.0'
+            }
+        }
+
+        stage{"Run test"}{
+            steps{
+                sh 'docker run py-crud-test'
+            }
+        }
+    }
+    post{
+        always{
+            echo "========always========"
+        }
+        success{
+            echo "========pipeline executed successfully ========"
+        }
+        failure{
+            echo "========pipeline execution failed========"
+        }
+    }
+}

@@ -1,0 +1,40 @@
+pipeline{
+    agent any
+    stages{
+        stage("Checkout SCM"){
+            steps{
+                git branch: "main", url: ""
+            }
+        }
+
+        stage("Build image"){
+            steps{
+                sh 'docker build -t node-crud-test .'
+            }
+        }
+
+        stage("Push image"){
+            steps{
+                sh 'docker tag node-crud-test chrispined/nodeStaff:node-crud-test-1.0'
+                sh 'docker push chrispined/nodeStaff:node-crud-test-1.0'
+            }
+        }
+
+        stage("Start test"){
+            steps{
+                sh 'docker run node-crud-test'
+            }
+        }
+    }
+    post{
+        always{
+            echo "========always========"
+        }
+        success{
+            echo "========pipeline executed successfully ========"
+        }
+        failure{
+            echo "========pipeline execution failed========"
+        }
+    }
+}

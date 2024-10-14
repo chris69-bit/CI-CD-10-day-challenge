@@ -3,11 +3,28 @@ pipeline{
     stages{
         stage("Checkout SCM"){
             steps{
-                git branch: "main"
+                git branch: "main", url: ""
             }
         }
 
-        stage("")
+        stage("Build image"){
+            steps{
+                sh 'docker build -t java-crud-test .'
+            }
+        }
+
+        stage("Push image"){
+            steps{
+                sh 'docker tag java-crud-test chrispined/javastuff:java-crud-test-1.0'
+                sh 'docker push chrispined/javastuff:java-crud-test-1.0'
+            }
+        }
+
+        stage("Start the test"){
+            steps{
+                sh 'docker run java-crud-test'
+            }
+        }
     }
     post{
         always{
