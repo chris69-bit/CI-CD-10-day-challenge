@@ -1,0 +1,43 @@
+pipeline{
+    agent{
+        label "node"
+    }
+    stages{
+        stage("Checkout SCM"){
+            steps{
+                git branch: "main", url: ""
+                
+            }
+        }
+
+        stage("build image"){
+            steps{
+                sh 'docker build -t ruby_crud .'
+            }
+        }
+
+        stage("Push image"){
+            steps{
+                sh 'docker tag ruby_crud chrispined/ruby-staff:ruby-crud-1.0'
+                sh 'docker push chrispined/ruby-staff:ruby-crud-1.0'
+            }
+        }
+
+        stage("Test"){
+            steps{
+                sh 'docker run ruby_crud'
+            }
+        }
+    }
+    post{
+        always{
+            echo "========always========"
+        }
+        success{
+            echo "========pipeline executed successfully ========"
+        }
+        failure{
+            echo "========pipeline execution failed========"
+        }
+    }
+}
