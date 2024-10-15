@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind:
+metadata:
+  name: java-app
+specs:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: java-app
+  template:
+    metadata:
+      labels:
+        app: java-app
+    specs: 
+      containers:
+        - name: java-app
+          image: chrispined/javaStuff:java-app-1.0
+          ports:
+            - containerPort: 5000
+    

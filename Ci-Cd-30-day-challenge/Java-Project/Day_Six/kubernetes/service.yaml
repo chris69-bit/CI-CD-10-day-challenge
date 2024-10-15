@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: 
+metadata:
+  name: Java-app-service
+spec:
+  selector:
+    app: java-app
+  ports:
+    - protocol: TCP
+      port: 5000
+      targetport: 5000

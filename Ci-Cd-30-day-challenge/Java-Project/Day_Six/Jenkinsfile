@@ -1,0 +1,51 @@
+pipeline{
+    agent any
+    stages{
+        stage("Checkout SCM"){
+            steps{
+                git branch: "main", url: ""
+            }
+        }
+
+        stage("compile"){
+            steps{
+                sh 'mvn compile'
+            }
+        }
+
+        stage("Test"){
+            steps{
+                sh 'mvn test'
+            }
+        }
+
+        stage("Build Image"){
+            steps{
+                sh 'docker build -t java-app .'
+            }
+        }
+
+        stage("Push to Docker hub"){
+            steps{
+                sh 'docker tag java-app chrispined/javastuff:java-app-1.0'
+                sh 'docker push chrispined/javastuff:java-app-1.0'
+            }
+        }
+
+        stage("Deploy to K8s"){
+            sh 'kubectl apply -f kubernetes/deployment.yaml'
+            sh 'kubectl apply -f kubernetes/service.yaml'
+        }
+    }
+    post{
+        always{
+            echo "========always========"
+        }
+        success{
+            echo "========pipeline executed successfully ========"
+        }
+        failure{
+            echo "========pipeline execution failed========"
+        }
+    }
+}
