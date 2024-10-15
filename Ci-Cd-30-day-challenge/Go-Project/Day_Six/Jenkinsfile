@@ -1,0 +1,55 @@
+pipeline{
+    agent{
+        label "node"
+    }
+    stages{
+        stage("Checkout SCM"){
+            steps{
+                git branch: "main", url: ""
+            }
+        }
+
+        stage("Build"){
+            steps{
+                sh 'go build main.go'
+            }
+        }
+
+        stage("Test"){
+            steps{
+                sh 'go test'
+            }
+        }
+
+        stage("Build the image"){
+            steps{
+                sh 'docker build -t go-app .'
+            }
+        }
+
+        stage("Push image"){
+            steps{
+                sh 'docker tag go-app chrispined/goStaff:go-app-1.0'
+                sh 'docker push chrispined/goStaff:go-app-1.0'
+            }
+        }
+
+        stage("Deploy to K8's"){
+            steps{
+                sh 'kubectl apply -f kubernetes/deployment.yaml'
+                sh 'kubectl apply -f kubernetes/service.yaml'
+            }
+        }
+    }
+    post{
+        always{
+            echo "========always========"
+        }
+        success{
+            echo "========pipeline executed successfully ========"
+        }
+        failure{
+            echo "========pipeline execution failed========"
+        }
+    }
+}
