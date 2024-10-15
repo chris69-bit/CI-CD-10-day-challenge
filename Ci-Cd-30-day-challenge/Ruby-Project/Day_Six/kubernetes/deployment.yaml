@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ruby-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ruby-app
+  template:
+    metadata:
+      labels:
+        app: ruby-app
+    spec:
+      containers:
+        - name: my-ruby-app
+          image: chrispined/rubyStaff:ruby-app-1.0
+          ports:
+            containerPort: 5000
