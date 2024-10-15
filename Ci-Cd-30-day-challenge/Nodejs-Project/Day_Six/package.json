@@ -1,0 +1,21 @@
+{
+    "name": "node-crud-app",
+    "version": "1.0.0",
+    "description": "A simple Node.js CRUD app with SQLite integration and automated tests",
+    "main": "app.js",
+    "scripts": {
+      "start": "node app.js",
+      "test": "mocha test_app.js"
+    },
+    "dependencies": {
+      "express": "^4.17.1",
+      "sqlite3": "^5.0.2"
+    },
+    "devDependencies": {
+      "mocha": "^10.0.0",
+      "supertest": "^6.1.3"
+    },
+    "author": "",
+    "license": "ISC"
+  }
+  
