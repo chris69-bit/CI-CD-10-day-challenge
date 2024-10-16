@@ -1,0 +1,60 @@
+pipeline{
+    agent any
+    stages{
+        stage("Checkout SCM"){
+            steps{
+                git branch: "main", url: "" 
+            }
+        }
+
+        stage("Install dependencies"){
+            steps{
+                sh 'bundle install'
+            }
+        }
+
+        stage("Run unit test"){
+            steps{
+                sh 'ruby test_app.rb'
+            }
+        }
+
+        stage("Integration test"){
+            steps{
+                sh 'ruby test_book.rb'
+            }
+        }
+
+        stage("Build image"){
+            steps{
+                sh 'docker build -t ruby-app .'
+            }
+        }
+
+        stage("Push Image"){
+            steps{
+                sh 'docker tag ruby-app chrispined/rubyStaff:ruby-app-1.0'
+                sh 'docker push chrispined/rubyStaff:ruby-app-1.0'
+
+            }
+        }
+
+        stage("Deploy to K8s"){
+            steps{
+                sh 'kubectl -f kubernetes/deployment.yaml'
+                sh 'kubectl -f kubernetes/service.yaml'
+            }
+        }
+    }
+    post{
+        always{
+            echo "========always========"
+        }
+        success{
+            echo "========pipeline executed successfully ========"
+        }
+        failure{
+            echo "========pipeline execution failed========"
+        }
+    }
+}

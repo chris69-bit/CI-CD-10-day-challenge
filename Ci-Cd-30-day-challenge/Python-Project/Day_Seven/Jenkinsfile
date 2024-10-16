@@ -1,0 +1,87 @@
+pipeline{
+    agent any
+
+    environment{
+        VENV_DIR='venv'
+        DB_URI='sqlite:///instance/app.db'
+    }
+    stages{
+        stage("Checkout SCM"){
+            steps{
+                git branch: "main", url: ""
+            }
+        }
+
+        stage("Setup Python Virtual env"){
+            steps{
+                sh '''
+                python3 -m venv ${VENV_DIR}
+                source ${VENV_DIR}/bin/activate
+                '''
+            }
+        }
+
+        stage("Install dependencies"){
+            steps{
+                sh '''
+                source ${VENV_DIR}/bin/activate
+                pip install -r requirements.txt
+                '''
+            }
+        }
+
+        stage("Prepare db"){
+            steps{
+                sh '''
+                source ${VENV_DIR}/bin/activate
+                export FLASK_APP=app.py
+                flask db init || true
+                flask db migrate
+                flask db upgrade
+                '''
+            }
+        }
+
+        stage("Unit test"){
+            steps{
+                sh '''
+                source ${VENV_DIR}/bin/activate
+                pytest
+                '''
+            }
+        }
+
+        stage("Build Image"){
+            steps{
+                sh 'docker build -t flask-app .'
+            }
+        }
+
+        stage("Push Image"){
+            steps{
+                sh 'docker tag flask-app chrispined/pythonStaff:flask-app-1.1'
+                sh 'docker push chrispined/pythonStaff:flask-app-1.1'
+            }
+        }
+
+        stage("Deploy to K8s"){
+            steps{
+                sh 'kubectl apply -f kubernetes/deployment.yaml'
+                sh 'kubectl apply -f kubernetes/service.yaml'
+            }
+        }
+    }
+    post{
+        always{
+            sh '''
+            rm -rf ${VENV_DIR}
+            docker system prune -f'''
+        }
+        success{
+            echo "========pipeline executed successfully ========"
+        }
+        failure{
+            echo "========pipeline execution failed========"
+        }
+    }
+}
