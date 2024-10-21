@@ -28,7 +28,7 @@ spec:
             - name: alertmanager-config
 ---
 apiVersion: v1 
-kind: Service 
+kind: ConfigMap
 metadata:
   name: alertmanager-config
 data:
