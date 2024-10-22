@@ -1,0 +1,55 @@
+pipeline{
+    agent any
+    stages{
+        stage("Checkout SCM"){
+            steps{
+                git branch: "main", url: ""
+            }
+        }
+
+        stage("install dependencies"){
+            steps{
+                sh 'bundle install'
+            }
+        }
+
+        stage("Unit test"){
+            steps{
+                sh 'ruby test ...'
+            }
+        }
+
+        stage("Integration test"){
+            steps{
+                sh 'ruby test'
+            }
+        }
+
+        stage("Build docker Image"){
+            steps{
+                sh 'docker build -t ruby-app .'
+                sh 'docker tag ruby-app chrispined/rubyApps:ruby-app-1.2'
+                sh 'docker push chrispined/rubyApps:ruby-app-1.2'
+            }
+        }
+
+        stage("Deploy to K8s"){
+            steps{
+                sh './scripts/prometheus_monitor.sh'
+            }
+        }
+
+
+    }
+    post{
+        always{
+            echo "========always========"
+        }
+        success{
+            echo "========pipeline executed successfully ========"
+        }
+        failure{
+            echo "========pipeline execution failed========"
+        }
+    }
+}

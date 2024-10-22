@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: 
+  name: ruby-deployment
+spec:
+  replicas: 2
+  selector: 
+    matchLabels:
+      app: sinatra-app
+  template:
+    metadata:
+      labels:
+        app: sinatra-app
+    spec:
+      containers:
+        - name: my-sinatra-app
+          image: chrispined/rubyStaff:ruby-app-1.1
+          ports:
+            containerPort: 8080

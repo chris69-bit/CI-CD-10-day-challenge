@@ -1,0 +1,11 @@
+apiVersion: v1 
+kind:
+metadata:
+  name: alertmanager-service
+spec:
+  selector:
+    app: alertmanager
+  ports:
+    - protocol: TCP
+      port: 5000
+      targetPort: 5000

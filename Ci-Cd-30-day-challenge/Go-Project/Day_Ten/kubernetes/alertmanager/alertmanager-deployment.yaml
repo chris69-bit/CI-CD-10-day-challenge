@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment 
+metadata:
+  name: alertmanager-deployment
+spec:
+  replicas: 1
+  selector: 
+    matchLabels:
+      app: alertmanager
+  template:
+    metadata:
+      labels: 
+        app: alertmanager
+    spec:
+      containers:
+        - name: alertmanager
+          image: prom/alertmanager
+          args:
+            - "--config.file=/etc/alertmanager/config.yml"
+          ports:
+            - containerPort: 3000
+          volumeMount:
+            - name: alertmanager-config-volume
+              mountPath: /etc/alertmanager
+      volumes:
+        - name: alertmanager-config-volume
+          configMap:
+            - name: alertmanager-config
+---
+apiVersion: v1 
+kind: ConfigMap
+metadata:
+  name: alertmanager-config
+data:
+  config.yml: |
+    global:
+      smtp_smarthost: 'localhost:25'
+      smtp_from: 'cchrispindevops@gmail.com'
+
+    route:
+      receiver: 'default'
+
+    receivers:
+      - name: 'default'
+        email_configs:
+          - to: 'alertmanager@gmail.com'
+          
+    
