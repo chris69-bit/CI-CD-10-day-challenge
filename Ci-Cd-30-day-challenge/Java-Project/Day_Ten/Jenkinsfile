@@ -1,0 +1,48 @@
+pipeline{
+    agent any
+    stages{
+        stage("Checkout SCM"){
+            steps{
+                git branch: "main", url:
+            }
+        }
+
+        stage("Compile "){
+            steps{
+                sh 'mvn compile'
+            }
+        }
+
+        stage("Test "){
+            steps{
+                sh 'mvn test'
+            }
+        }
+
+        stage("Build Image"){
+            steps{
+                sh 'docker build -t java-app .'
+                sh 'docker tag java-app chrispined/javaApp:java-app-1.1'
+                sh 'docker push chrispined/javaApp:java-app-1.1'
+            }
+        }
+
+        stage("Deploy to K8s"){
+            steps{
+                sh './scripts/prometheus_deploy.sh'
+            }
+        }   
+        
+    }
+    post{
+        always{
+            echo "========always========"
+        }
+        success{
+            echo "========pipeline executed successfully ========"
+        }
+        failure{
+            echo "========pipeline execution failed========"
+        }
+    }
+}
