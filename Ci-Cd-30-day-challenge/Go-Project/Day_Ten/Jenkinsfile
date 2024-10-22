@@ -1,0 +1,52 @@
+pipeline{
+    agent any
+    stages{
+        stage("Checkout SCM"){
+            steps{
+                git branch: "main", url: ""
+            }
+        }
+
+        stage("Build"){
+            steps{
+                sh 'go build -o main'
+            }
+        }
+
+        stage("Run test"){
+            steps{
+                sh 'go test'
+            }
+        }
+
+        stage("Build image"){
+            steps{
+                sh 'docker build -t go-app .'
+            }
+        }
+
+        stage("Push image"){
+            steps{
+                sh 'docker tag go-app chrispined/goApp:go-app-1.1'
+                sh 'docker push chrispined/goApp:go-app-1.1'
+            }
+        }
+
+        stage("Deploy to K8s"){
+            steps{
+                sh './scripts/prometheus_deploy.sh'
+            }
+        }
+    }
+    post{
+        always{
+            echo "========always========"
+        }
+        success{
+            echo "========pipeline executed successfully ========"
+        }
+        failure{
+            echo "========pipeline execution failed========"
+        }
+    }
+}
