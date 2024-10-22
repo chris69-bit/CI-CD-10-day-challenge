@@ -34,7 +34,28 @@ data:
     global:
       scrape_interval: 15s
       evaluation_interval: 15s
+
+    alerting:
+      alertmanagers:
+        static_configs:
+          - targets: ['localhost:9093']
+
+    rule_files:
+      - "/etc/prometheus/rules/alert.rules"
+      
     scrape_configs:
       job_name: "Go-app"
       static_configs:
         - targets: ['localhost:9090'']
+  alert.rules: |
+    groups:
+      - name: HighCPUUsage
+        rules:
+        - alert: HighCpuUsage
+          expr: sum(rate(container_cpu_usage_seconds_total[1m])) / sum(machine_cpu_cores) > 0.8
+          for: 1m
+          labels:
+            severity: critical
+          annotations:
+            summary: "High CPU Usage"
+            description: "CPU usage has been over 80% for more than 1 minute."
