@@ -1,0 +1,52 @@
+pipeline{
+    agent any
+    stages{
+        stage("Checkout SCM"){
+            steps{
+                git branch: "main", url: ""
+            }
+        }
+
+        stage("Install dependencies"){
+            steps{
+                sh 'pip install -r requirements.txt'
+            }
+        }
+
+        stage("Unit test"){
+            steps{
+                sh 'pytest'
+            }
+        }
+
+        stage("Build image"){
+            steps{
+                sh 'docker build -t python-app .'
+            }
+        }
+
+        stage("Push Image"){
+            steps{
+                sh 'docker tag python-app chrispined/pythonApp-1.0'
+                sh 'docker push chrispined/pythonApp-1.0'
+            }
+        }
+
+        stage("Deploy tp K8s"){
+            steps{
+                sh './scripts/prometheus-deploy.sh'
+            }
+        }
+    }
+    post{
+        always{
+            echo "========always========"
+        }
+        success{
+            echo "========pipeline executed successfully ========"
+        }
+        failure{
+            echo "========pipeline execution failed========"
+        }
+    }
+}
